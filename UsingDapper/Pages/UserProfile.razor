@@ -1,0 +1,276 @@
+﻿@page "/userprofile"
+@using DataAccessLibrary.DataAccess;
+@using DataAccessLibrary.Models;
+@using DataAccessLibrary.SqlDataAccess;
+@inject IAdminData _DbAdmin
+@inject NavigationManager nunav
+@inject SessionState State
+
+@using System.Security.Cryptography;
+@using System.Text;
+
+<link href="/validation.css" rel="stylesheet" />
+
+<div class="col-sm-12" style="padding:0px;">
+    <h4 style="background-color:#46316e; color:white; padding-bottom:10px">User Profile</h4>
+</div>
+
+
+
+<div class="container">
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <div class="row">
+            <div class="col-sm-2" style="background-color:#807feb; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white">Id</label>
+                    <InputNumber class="form-control" @bind-Value="model.Id" disabled />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">User ID</label>
+                    <ValidationMessage For="@(() => model.Username)" />
+                    <InputText class="form-control" @bind-Value="model.Username" disabled />
+                </div>
+            </div>
+            <div class="col-sm-3" style="background-color:#807feb; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white">Employee ID</label>
+                    <ValidationMessage For="@(() => model.EmployeeID)" />
+                    <InputNumber class="form-control" @bind-Value="model.EmployeeID" disabled />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">Name</label>
+                    <ValidationMessage For="@(() => model.Name)" />
+                    <InputText class="form-control" @bind-Value="model.Name" disabled />
+                </div>
+            </div>
+            <div class="col-sm-3" style="background-color:#807feb; color:white; padding-bottom:10px">
+
+                <div class="form-group">
+                    <label class="text-white">Email Address</label>
+                    <ValidationMessage For="@(() => model.Email)" />
+                    <InputText class="form-control" @bind-Value="model.Email" />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">Phone Numer</label>
+                    <ValidationMessage For="@(() => model.Mobile)" />
+                    <InputText class="form-control" @bind-Value="model.Mobile" />
+                </div>
+
+            </div>
+            <div class="col-sm-2" style="background-color:#807feb; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white">Password</label>
+                    <ValidationMessage For="@(() => model.Password)" />
+                    <InputText type="password" class="form-control" @bind-Value="model.Password" />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">Cofirm Paswrd</label>
+                    <ValidationMessage For="@(() => model.ConPassword)" />
+                    <InputText type="password" class="form-control" @bind-Value="model.ConPassword" />
+                </div>
+            </div>
+            <div class="col-sm-2" style="background-color:#21395e; border-color:red; border-width:50px; color:white; padding-bottom:10px">
+                <div class="form-group" style="padding-top:20px">
+                    @if (model.IsUpdate)
+                    {
+                        <input type="button" class="btn btn-primary" @onclick="@UpdateUserData" value="Update" />
+
+                    }
+                    else
+                    {
+                        @* <input type="button" class="btn btn-primary" @onclick="@CreateUserData" value="Save" /> *@
+                    }
+                </div>
+                <div class="form-group">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12" style="padding:0px">
+                @if (adminList == null)
+                {
+                    <h3>Please wait, Loading the data.</h3>
+                }
+                else
+                {
+                    @*  class="table table-striped" *@
+                    @* class='table' *@
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                @* <th>Password</th> *@
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in adminList)
+                            {
+                                <tr>
+                                    <td>@user.Id</td>
+                                    <td>@user.Username</td>
+                                    <td>@user.Name</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.Mobile</td>
+                                    <td style="display:none;">@user.Password</td>
+                                    <td>
+                                        <input type="button" value="Edit" @onclick="() => GetDataById(user.Id)" class="btn btn-primary" />
+                                        @* <input type="button" value="Delete" @onclick="() => DeleteData(user.Id)" class="btn btn-danger" /> *@
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    AdminModel model = new AdminModel();
+    string? massege;
+    IEnumerable<AdminModel> adminList;
+    [Inject]
+
+    public IAdminData AdminData { get; set; }
+
+    public string FormSubmitMessage { get; set; } = "Data Not Submitted";
+
+    protected override void OnInitialized()
+    {
+        this.GetAllData();
+    }
+    public void GetAllData()
+    {
+       
+        adminList = AdminData.GetAllDataInd(State.username);
+    }
+    // public void SaveDataInd(string userName, string email, string mobile, string password)
+    // {
+
+    //     this.GetAllData();
+    // }
+
+    private void submit()
+    {
+        if (adminList.Any(a => a.Username.Equals(model.Username) && a.Password.Equals(model.Password)))
+        {
+            State.username = model.Username;
+            State.email = model.Email;
+            State.mobile = model.Mobile;
+            State.empid = model.EmployeeID;
+
+            nunav.NavigateTo("/Index");
+        }
+        else
+        {
+            massege = "Your Email or Password is wrong";
+        }
+    }
+    public void HandleValidSubmit()
+    {
+
+        if (model.IsUpdate != true && model.Id == 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            AdminData.SaveDataDetails(model);
+            nunav.NavigateTo("/userprofile");
+        }
+        if (model.IsUpdate == true && model.Id != 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            AdminData.SaveDataDetails(model);
+            nunav.NavigateTo("/userprofile");
+        }
+        else
+        {
+
+        }
+    }
+    public void HandleInvalidSubmit() => FormSubmitMessage = "Invalid Data Submitted";
+
+    public void ClearAll()
+    {
+        model.Id = 0;
+        model.Username = string.Empty;
+        model.Email = string.Empty;
+        model.Mobile = string.Empty;
+        model.Password = string.Empty;
+        model.ConPassword = string.Empty;
+        // ValidationSummary.Equals=0;
+    }
+    protected async Task GetDataById(int Id)
+    {
+        model = await AdminData.GetDataById(Id);
+        model.IsUpdate = true;
+        this.GetAllData();
+    }
+    protected async Task DeleteData(int Id)
+    {
+        await AdminData.DeleteData(Id);
+        this.GetAllData();
+    }
+    protected async Task UpdateUserData()
+    {
+        await AdminData.SaveDataDetailsUsr(model);
+        // AdminData.SaveDataInd(model.Username, model.Email, model.Mobile, model.Password);      
+        this.ClearAll();
+        this.GetAllData();
+        nunav.NavigateTo("/userprofile");
+    }
+    protected async Task CreateUserData()
+    {
+        await AdminData.SaveDataDetailsUsr(model);
+        this.ClearAll();
+        this.GetAllData();
+        nunav.NavigateTo("/userprofile");
+    }
+    // // This size of the IV (in bytes) must = (keysize / 8).  Default keysize is 256, so the IV must be
+    // // 32 bytes long.  Using a 16 character string here gives us 32 bytes when converted to a byte array.
+    // private const string initVector = "pemgail9uzpgzl88";
+    // // This constant is used to determine the keysize of the encryption algorithm.
+    // private const int keysize = 256;
+    // //Encrypt
+    // public string EncryptString(string plainText, string passPhrase)
+    // {
+    //     byte[] initVectorBytes = Encoding.UTF8.GetBytes(initVector);
+    //     byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);
+    //     PasswordDeriveBytes password = new PasswordDeriveBytes(passPhrase, null);
+    //     byte[] keyBytes = password.GetBytes(keysize / 8);
+    //     RijndaelManaged symmetricKey = new RijndaelManaged();
+    //     symmetricKey.Mode = CipherMode.CBC;
+    //     ICryptoTransform encryptor = symmetricKey.CreateEncryptor(keyBytes, initVectorBytes);
+    //     MemoryStream memoryStream = new MemoryStream();
+    //     CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
+    //     cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
+    //     cryptoStream.FlushFinalBlock();
+    //     byte[] cipherTextBytes = memoryStream.ToArray();
+    //     memoryStream.Close();
+    //     cryptoStream.Close();
+    //     return Convert.ToBase64String(cipherTextBytes);
+    // }
+    // public string DecryptString(string cipherText, string passPhrase)
+    // {
+    //     byte[] initVectorBytes = Encoding.ASCII.GetBytes(initVector);
+    //     byte[] cipherTextBytes = Convert.FromBase64String(cipherText);
+    //     PasswordDeriveBytes password = new PasswordDeriveBytes(passPhrase, null);
+    //     byte[] keyBytes = password.GetBytes(keysize / 8);
+    //     RijndaelManaged symmetricKey = new RijndaelManaged();
+    //     symmetricKey.Mode = CipherMode.CBC;
+    //     ICryptoTransform decryptor = symmetricKey.CreateDecryptor(keyBytes, initVectorBytes);
+    //     MemoryStream memoryStream = new MemoryStream(cipherTextBytes);
+    //     CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
+    //     byte[] plainTextBytes = new byte[cipherTextBytes.Length];
+    //     int decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
+    //     memoryStream.Close();
+    //     cryptoStream.Close();
+    //     return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount);
+    // }
+}

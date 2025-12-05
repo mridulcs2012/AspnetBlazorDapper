@@ -1,0 +1,22 @@
+﻿@page "/counter"
+
+<PageTitle>Counter</PageTitle>
+
+<div class="col-sm-12" style="padding:0px;">
+    <h4 style="background-color:#0A4C36; color:white; padding-bottom:10px">Counter</h4>
+</div>
+
+
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

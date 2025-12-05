@@ -1,0 +1,167 @@
+﻿@page "/registration"
+@layout RegistrationLayout
+@using DataAccessLibrary.DataAccess;
+@using DataAccessLibrary.Models;
+@using DataAccessLibrary.SqlDataAccess;
+@* @inject IAdminData _DbAdmin *@
+@inject NavigationManager nunav
+@inject SessionState State
+
+@using System.Security.Cryptography;
+@using System.Text;
+
+<link href="/validation.css" rel="stylesheet" />
+
+<div class="d-flex justify-content-center " style="padding:0px;">
+    <h4 style="color:black; padding-bottom:10px">User Registration</h4>
+</div>
+
+
+<div class="container" style="background-color:#f0f2f5">
+		<div class="d-flex justify-content-center h-100">
+        <div class="col-sm-4">
+        <EditForm Model="@model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <div class="row">
+            <div class="col-sm-12" style="color:black; padding-bottom:10px;">
+                <div class="form-group" style="display:none;">
+                    <label class="text-black">Id</label>
+                    <InputNumber class="form-control" @bind-Value="model.Id" />
+                </div>
+                <div class="form-group">
+                    <label class="text-black">User ID</label>
+                    <ValidationMessage For="@(() => model.Username)" />
+                    <InputText class="form-control" @bind-Value="model.Username" />
+                </div>
+                <div class="form-group" style="display:none;">
+                    <label class="text-black">Employee ID</label>
+                    <ValidationMessage For="@(() => model.EmployeeID)" />
+                    <InputNumber class="form-control" @bind-Value="model.EmployeeID" />
+                </div>
+                <div class="form-group" style="display:none;">
+                    <label class="text-black">Name</label>
+                    <ValidationMessage For="@(() => model.Name)" />
+                    <InputText class="form-control" @bind-Value="model.Name" />
+                </div>
+                <div class="form-group">
+                    <label class="text-black">Email Address</label>
+                    <ValidationMessage For="@(() => model.Email)" />
+                    <InputText class="form-control" @bind-Value="model.Email" />
+                </div>
+                <div class="form-group">
+                    <label class="text-black">Phone Numer</label>
+                    <ValidationMessage For="@(() => model.Mobile)" />
+                    <InputText class="form-control" @bind-Value="model.Mobile" />
+                </div>
+                <div class="form-group">
+                    <label class="text-black">Password</label>
+                    <ValidationMessage For="@(() => model.Password)" />
+                    <InputText type="password" class="form-control" @bind-Value="model.Password" />
+                </div>
+                <div class="form-group">
+                    <label class="text-black">Cofirm Paswrd</label>
+                    <ValidationMessage For="@(() => model.ConPassword)" />
+                    <InputText type="password" class="form-control" @bind-Value="model.ConPassword" />
+                </div>
+                <div style="color:red;font-size:large">
+                    @massege
+                </div>
+
+                <div class="form-group" style="padding-top:20px">
+                    <input type="button" class="btn btn-primary" @onclick="@CreateUserData" value="Add" />
+                    <a class="" href="#">Cancel</a>
+                    </div>
+                <div class="form-group">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                </div>
+
+            </div>
+        </div>
+     </EditForm>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    AdminModel model = new AdminModel();
+    string? massege;
+    IEnumerable<AdminModel> adminList;
+    [Inject]
+
+    public IAdminData AdminData { get; set; }
+
+    public string FormSubmitMessage { get; set; } = "Data Not Submitted";
+
+    protected override void OnInitialized()
+    {
+        this.GetAllData();
+    }
+    public void GetAllData()
+    {
+       
+        // adminList = AdminData.GetAllDataInd(State.username);
+    }
+
+    private void submit()
+    {
+        if (adminList.Any(a => a.Username.Equals(model.Username) && a.Password.Equals(model.Password)))
+        {
+            nunav.NavigateTo("/registration");
+        }
+        else
+        {
+            massege = "Your Email or Password is wrong";
+        }
+    }
+    public void HandleValidSubmit()
+    {
+
+        if (model.Id == 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            AdminData.SaveDataDetails(model);
+            nunav.NavigateTo("/registration");
+        }
+    }
+    public void HandleInvalidSubmit() => FormSubmitMessage = "Invalid Data Submitted";
+
+    public void ClearAll()
+    {
+        model.Id = 0;
+        model.Username = string.Empty;
+        model.Email = string.Empty;
+        model.Mobile = string.Empty;
+        model.Password = string.Empty;
+        model.ConPassword = string.Empty;
+    }
+    protected async Task GetDataById(int Id)
+    {
+        model = await AdminData.GetDataById(Id);
+        // model.IsUpdate = true;
+        // this.GetAllData();
+    }
+    protected async Task DeleteData(int Id)
+    {
+        await AdminData.DeleteData(Id);
+        // this.GetAllData();
+    }
+    // protected async Task UpdateUserData()
+    // {
+    //     // await AdminData.SaveDataDetailsUsr(model);
+    //     // this.ClearAll();
+    //     // this.GetAllData();
+    //     // nunav.NavigateTo("/registration");
+    // }
+    protected async Task CreateUserData()
+    {
+        await AdminData.SaveDataRegistrationUsr(model);
+        
+        this.ClearAll();
+        massege = "Data added successfully";
+        // this.GetAllData();
+        // nunav.NavigateTo("/registration");
+    }
+
+}

@@ -1,0 +1,449 @@
+﻿@page "/appointmentinfo"
+
+@using System.Globalization;
+@using DataAccessLibrary.DataAccess;
+@using DataAccessLibrary.Models;
+@using DataAccessLibrary.SqlDataAccess;
+@inject NavigationManager nunav
+@inject SessionState State
+
+<div class="col-sm-12" style="padding:0px;">
+    <h4 style="background-color:#46316e; color:white; padding-bottom:10px">My Appointment:</h4>
+</div>
+
+<div class="container">
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-5" style="background-color:#735ed1; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white" style="font-weight:bolder;">Selected Date :</label>
+                </div>
+                <div class="form-group">
+                    <label class="text-red" style="width:390px;height:37px;font-weight:bolder;font-size:x-large; background-color:white;color:darkblue">@date</label>
+                </div>
+            </div>
+            <div class="col-sm-5" style="background-color:#735ed1; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white" style="width:200px;font-weight:bolder;">Please Select Date:</label>
+                    <Input type="date" class="form-control" Value="date" style="font-weight:bolder;" format-value="dd-MM-yyyy" @onchange=HandledateChange />
+                </div>
+            </div>
+            <div class="col-sm-2" style="background-color:#21395e; color:white; padding-bottom:10px">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3" style="background-color:#807feb; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white">Id</label>
+                    <InputNumber class="form-control" @bind-Value="model.Id" disabled />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">Date</label>
+                    <ValidationMessage For="@(() => model.wheredate)" />
+                    <InputDate class="form-control" @bind-Value="model.wheredate" />
+                </div>
+                <div class="form-group" style="display:none;">
+                    <label class="text-white">App User ID</label>
+                    <ValidationMessage For="@(() => State.empid)" />
+                    <InputNumber class="form-control" @bind-Value="State.empid" />
+                </div>
+
+            </div>
+            <div class="col-sm-2" style="background-color:#807feb; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white">SL No.</label>
+                    <ValidationMessage For="@(() => model.slno)" />
+                    <InputNumber class="form-control" @bind-Value="model.slno" />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">Time.</label>
+                    <ValidationMessage For="@(() => model.fromtime)" />
+                    <InputText class="form-control" @bind-Value="model.fromtime" />
+                </div>
+            </div>
+            <div class="col-sm-5" style="background-color:#807feb; color:white; padding-bottom:10px">
+ 
+                <div class="form-group">
+                    <label class="text-white">Appointment.</label>
+                    <ValidationMessage For="@(() => model.appointwith)" />
+                    <InputText class="form-control" @bind-Value="model.appointwith" />
+                </div>
+               <div class="form-group">
+                    <label class="text-white">Remarks.</label>
+                    <ValidationMessage For="@(() => model.remarks)" />
+                    <InputText class="form-control" @bind-Value="model.remarks" />
+                </div>
+            </div>
+            <div class="col-sm-2" style="background-color:#21395e; border-color:red; border-width:50px; color:white; padding-bottom:10px">
+                <div class="form-group" style="padding-top:5px">
+                    @if (DateTime.Parse(date) >= DateTime.Parse(model.wheredate.ToString("dd-MM-yyyy")))
+                    {
+                        @if (model.IsUpdate)
+                        {
+                            <input type="button" style="width:80px;" class="btn btn-primary" @onclick="@UpdateAppointmentData" value="Update" />
+                        }
+                        else
+                        {
+                            @if (State.empid !=0)
+                            {
+                                <input type="button" style="width:80px;" class="btn btn-primary" @onclick="@CreateAppointmentData" value="Save" />
+                            }
+                        }
+                    }
+                </div>
+                <div class="form-group">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                </div>
+            </div>
+        </div>
+    </EditForm>
+    <hr/>
+    <div class="row" style="border-color:darkkhaki;border-style: solid;border-width:thick;">
+    @if (ShowSection)
+    {
+        <section class="showContent" >
+            <EditForm Model="@model1" OnValidSubmit="HandleValidSubmitSHR">
+                <div class="row" style="border-color:red;border-style: solid;border-width:thin;">
+                        <div class="col-sm-2" style="display:none;background-color:#6F657D; color:white; padding-bottom:10px">
+                        <div class="form-group">
+                            <label class="text-white">Id</label>
+                            <InputNumber class="form-control" @bind-Value="model1.Id" disabled />
+                        </div>
+                    </div>
+                    <div class="col-sm-4" style="background-color:#6F657D; color:white; padding-bottom:10px">
+                        <div class="form-group" style="display:none;">
+                            <label class="text-white">Appointment Id</label>
+                            <InputNumber class="form-control" @bind-Value=apmntID disabled />
+                        </div>
+                         <div class="form-group">
+                                <label class="text-white">Name and Address</label>
+                                <ValidationMessage For="@(() => model1.EmpId)" />
+                                <InputSelect class="form-control" @bind-Value="model1.EmpId">
+                                    @foreach (var emp in employees)
+                                    {
+                                        <option value="@emp.Id">@emp.Name , Ph :@emp.PhoneNumer</option>
+                                    }
+                                </InputSelect>
+                         </div>
+                    </div>
+                    <div class="col-sm-4" style="background-color:#6F657D; color:white; padding-bottom:10px">
+                        <div class="form-group">
+                            <label class="text-white">Instructions</label>
+                            <ValidationMessage For="@(() => model1.Insrtuctions)" />
+                            <InputText class="form-control" @bind-Value="model1.Insrtuctions" />
+                        </div>
+                    </div>
+                    <div class="col-sm-2" style="background-color:#6F657D; color:white; padding-bottom:10px">
+                        <div class="form-group">
+                            <label class="text-white">Remarks</label>
+                            <ValidationMessage For="@(() => model1.Remarks)" />
+                            <InputText class="form-control" @bind-Value="model1.Remarks" />
+                        </div>
+                    </div>
+                    <div class="col-sm-2" style="background-color:#21395e; border-color:red; border-width:50px; color:white; padding-bottom:10px">
+                        <div class="form-group" style="padding-top:5px">
+                            @if (model1.IsUpdate)
+                            {
+                                    <input type="button" class="btn btn-primary" style="width:80px" @onclick="@UpdateShareToData" value="Update" />
+                            }
+                            else
+                            {
+                                    <input type="button" class="btn btn-primary" style="width:80px" @onclick="@CreateShareToData" value="Save" />
+                            }
+                                <input type="button" value="Hide" style="width:80px" @onclick="() => OnHideSection()" class="btn btn-warning" />
+
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+         
+            <div class="row">
+                <div class="col-sm-12" style="padding:0px">
+
+                    @if (sharetoList == null)
+                    {
+                        <h3>Please wait, Loading the data.</h3>
+                    }
+                    else
+                    {
+                        <table class='table'>
+                            <thead>
+                                <tr>
+                                    @* <th>ID</th> *@
+                                    <th>Appmnt Id</th>
+                                    @* <th>Emp Id</th> *@
+                                    <th>Emp Name</th>
+                                    <th>Instructions</th>
+                                    <th>Remarks</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var shareto in sharetoList)
+                                {
+                                    <tr>
+                                        @* <td>@shareto.Id</td> *@
+                                        <td>@shareto.AppntId</td>
+                                        @* <td>@shareto.EmpId</td> *@
+                                        <td>@shareto.Name</td>
+                                        <td>@shareto.Insrtuctions</td>
+                                        <td>@shareto.Remarks</td>
+                                        <td>
+                                                <input type="button" value="Delete" style="width:80px" @onclick="() => DeleteShareData(shareto.Id)" class="btn btn-danger" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </section>
+    }  
+    </div>
+    <div class="row">
+        <div class="col-sm-12" style="padding:0px">
+
+            @if (appointmentList == null)
+            {
+                <h3>Please wait, Loading the data.</h3>
+            }
+            else
+            {
+                <table class='table'>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Sl No.</th>
+                            <th>Time</th>
+                            <th>Appointment</th>
+                            <th>Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var appointment in appointmentList)
+                        {
+                            <tr>
+                                <td>@appointment.Id</td>
+                                <td>@appointment.wheredate.ToString("dd-MM-yyyy")</td>
+                                <td>@appointment.slno</td>
+                                <td>@appointment.fromtime</td>
+                                <td>@appointment.appointwith</td>
+                                <td>@appointment.remarks</td>
+                                <td>
+                                    <input type="button" value="Edit" style="width:80px" @onclick="() => GetDataById(appointment.Id)" class="btn btn-primary" />
+                                    <input type="button" value="Delete" style="width:80px" @onclick="() => DeleteData(appointment.Id)" class="btn btn-danger" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div> 
+</div>
+
+
+
+@code {
+    string date = DateTime.Today.ToString("dd-MM-yyyy");
+    async Task HandledateChange(ChangeEventArgs args)
+    {
+        date = args.Value.ToString();
+        date = Convert.ToDateTime(date).ToString("dd-MM-yyyy");
+        await this.GetAllData();
+    }
+
+
+
+    // public string _dateString="10-OCT-2023";
+    public string MyDate { get; set; }
+    public string MyDate1;
+    public DateTime usrDate;
+    public string dttest;
+    public int apmntID;
+    public int EmpID;
+
+    private void DateNam(ChangeEventArgs e)
+    {
+        MyDate = e.Value as string;
+        MyDate1 =Convert.ToDateTime(MyDate).ToString("dd-MM-yyyy");
+    }
+
+
+
+    // public bool ShowSection { get; set; }
+    private bool ShowSection = false;
+
+    Appointment model = new Appointment();
+    ShareTo model1 = new ShareTo();
+
+    string? massege;
+
+    IEnumerable<ShareTo> sharetoList;
+    IEnumerable<Appointment> appointmentList;
+    IEnumerable<Appointment> appointmentList1;
+    IEnumerable<Employee> employees;
+
+    [Inject]
+    public IAppointmentServices AppointmentServices { get; set; }
+    [Inject]
+    public IShareToServices ShareToServices { get; set; }
+    [Inject]
+    public IEmployeeServices EmployeeServices { get; set; }
+
+    public string FormSubmitMessage { get; set; } = "Data Not Submitted";
+
+    protected override async Task OnInitializedAsync()
+    {
+        dttest = "24-10-2023";
+        await this.GetAllData();
+        // employees = EmployeeServices.GetAllDataDropDown();
+        employees = EmployeeServices.GetAllDataDropDownEmpforApmnt(State.empid);
+    }
+    protected async Task GetAllData()
+    {
+        usrDate = model.wheredate;
+        appointmentList = await AppointmentServices.GetAllDataUsr(date, State.empid);
+    }
+    protected async Task GetAllDataSHR()
+    {
+        sharetoList = await ShareToServices.GetAllDataSHR(apmntID);
+        // employees = EmployeeServices.GetAllDataDropDown();
+    }
+
+    protected async Task GetDataByDate()
+    {
+        appointmentList1 = await AppointmentServices.GetDataByDate(MyDate1);
+    }
+    public void HandleValidSubmit()
+    {
+
+        if (model.IsUpdate != true && model.Id == 0)
+        {
+            usrDate = model.wheredate;
+            FormSubmitMessage = "Form Data Submitted";
+            AppointmentServices.SaveDataDetails(model,State.empid);
+            nunav.NavigateTo("/appointmentinfo");
+        }
+        if (model.IsUpdate == true && model.Id != 0)
+        {
+            usrDate = model.wheredate;
+            FormSubmitMessage = "Form Data Submitted";
+            AppointmentServices.SaveDataDetails(model,State.empid);
+            nunav.NavigateTo("/appointmentinfo");
+        }
+
+        else
+        {
+
+        }
+    }
+    public void HandleInvalidSubmit() => FormSubmitMessage = "Invalid Data Submitted";
+    public void HandleValidSubmitSHR()
+    {
+
+        if (model1.IsUpdate != true && model1.Id == 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            ShareToServices.GetAllDataSHR(apmntID); 
+            nunav.NavigateTo("/appointmentinfo");
+        }
+        if (model1.IsUpdate == true && model1.Id != 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            ShareToServices.GetAllDataSHR(apmntID); 
+            nunav.NavigateTo("/appointmentinfo");
+        }
+
+        else
+        {
+
+        }
+    }
+    protected async Task UpdateAppointmentData()
+    {
+        await AppointmentServices.SaveDataDetails(model,State.empid);
+        await this.GetAllData();
+        this.ClearAll();
+    }
+    protected async Task CreateAppointmentData()
+    {
+        await AppointmentServices.SaveDataDetails(model,State.empid);
+        await this.GetAllData();
+        this.ClearAll();
+    }
+
+    protected async Task UpdateShareToData()
+    {
+        await ShareToServices.SaveDataDetails(model1, apmntID);
+        await this.GetAllDataSHR();
+        this.ClearShareAll();
+    }
+    protected async Task CreateShareToData()
+    {
+        await ShareToServices.SaveDataDetails(model1, apmntID);
+        await this.GetAllDataSHR();
+        this.ClearShareAll();
+    }
+
+    public void ClearAll()
+    {
+        model.pslct = 0;
+        model.fromtime = string.Empty;
+        model.appointwith = string.Empty;
+        model.remarks = string.Empty;
+    }
+    public void ClearShareAll()
+    {
+        model1.AppntId = 0;
+        model1.Insrtuctions = string.Empty;
+        model1.Remarks = string.Empty;
+    }
+    protected async Task GetDataById(int Id)
+    {
+        apmntID = Id;
+        model = await AppointmentServices.GetDataById(apmntID);
+        model.IsUpdate = true;
+        await this.GetAllData();
+        await this.GetAllDataSHR();
+        OnUpdated(apmntID);
+    }
+    protected async Task DeleteData(int Id)
+    {
+        await AppointmentServices.DeleteData(Id);
+        await this.GetAllData();
+    }
+    protected async Task DeleteShareData(int Id)
+    {
+        await ShareToServices.DeleteData(Id);
+        await this.GetAllDataSHR();
+        this.ClearShareAll();
+    }
+    private async void OnUpdated(int Id)
+    {
+        apmntID = Id;
+        if (ShowSection == false && apmntID != 0)
+        {
+            if (State.userroleid==9)
+            {
+                ShowSection = false;
+            }
+            else
+            {
+                ShowSection = true;
+            }
+           
+        }
+    }
+    private async void OnHideSection()
+    {
+        ShowSection = false;
+    }
+}
+
+
+ 

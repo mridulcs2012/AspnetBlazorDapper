@@ -1,0 +1,306 @@
+﻿@page "/adminsetting"
+@using DataAccessLibrary.DataAccess;
+@using DataAccessLibrary.Models;
+@using DataAccessLibrary.SqlDataAccess;
+@inject IAdminData _DbAdmin
+@inject NavigationManager nunav
+@inject SessionState State
+@* @implements IDisposable *@
+
+
+<link href="/validation.css" rel="stylesheet" />
+
+<div class="col-sm-12" style="padding:0px;">
+    <h4 style="background-color:#46316e; color:white; padding-bottom:10px">Admin Setting</h4>
+</div>
+
+
+
+<div class="container">
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <div class="row">
+            <div class="col-sm-2" style="background-color:#807feb;; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white">Id</label>
+                    <InputNumber class="form-control" @bind-Value="model.Id" disabled />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">User ID</label>
+                    <ValidationMessage For="@(() => model.Username)" />
+                    @if (!model.IsUpdate)
+                    {
+                        <InputText class="form-control" @bind-Value="model.Username" />
+                    }
+                    else
+                    {
+                        <InputText class="form-control" @bind-Value="model.Username" disabled />
+                    }
+                    
+                </div>
+            </div>
+            <div class="col-sm-3" style="background-color:#807feb;; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white">Password</label>
+                    <ValidationMessage For="@(() => model.Password)" />
+                    <InputText type="password" class="form-control" @bind-Value="model.Password" />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">Email Address</label>
+                    <ValidationMessage For="@(() => model.Email)" />
+                    <InputText class="form-control" @bind-Value="model.Email" />
+                </div>
+            </div>
+            <div class="col-sm-4" style="background-color:#807feb;; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white">Phone Numer</label>
+                    <ValidationMessage For="@(() => model.Mobile)" />
+                    <InputText class="form-control" @bind-Value="model.Mobile" />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">Name and Address</label>
+                    <ValidationMessage For="@(() => model.EmployeeID)" />
+                    <InputSelect class="form-control" @bind-Value="model.EmployeeID">
+                        @foreach (var emp in employees)
+                        {
+                            <option value="@emp.Id">@emp.Name , Ph :@emp.PhoneNumer</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+            <div class="col-sm-3" style="background-color:#21395e; border-color:red; border-width:50px; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white">User Role</label>
+                    <ValidationMessage For="@(() => model.UserRoleId)" />
+                    <InputSelect class="form-control" @bind-Value="model.UserRoleId">
+                        @foreach (var urole in userrole)
+                        {
+                            <option value="@urole.Id">@urole.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="form-group" style="padding-top:5px">
+                    @if (model.IsUpdate)
+                    {
+                        <input type="button" class="btn btn-primary" @onclick="@UpdateUserData" value="Update" />
+
+                    }
+                    else
+                    {
+                        <input type="button" class="btn btn-primary" @onclick="@CreateUserData" value="Save" />
+                    }
+                </div>
+                <div class="form-group">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12" style="padding:0px">
+                @if (adminList == null)
+                {
+                    <h3>Please wait, Loading the data.</h3>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>UserID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                @* <th>Password</th> *@
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in adminList)
+                            {
+                                <tr>
+                                    <td>@user.Id</td>
+                                    <td>@user.Username</td>
+                                    <td>@user.Name</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.Mobile</td>
+                                    <td style="display:none;">@user.Password</td>
+                                    <td>
+                                        <input type="button" value="Edit" @onclick="() => GetDataById(user.Id)" class="btn btn-primary" />
+                                        <input type="button" value="Delete" @onclick="() => DeleteData(user.Id)" class="btn btn-danger" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    AdminModel model = new AdminModel();
+    string? massege;
+    IEnumerable<AdminModel> adminList;
+    IEnumerable<Employee> employees;
+    IEnumerable<Employee> userrole;
+    
+
+    [Inject]
+    public IAdminData AdminData { get; set; }
+    [Inject]
+    public IEmployeeServices EmployeeServices { get; set; }
+
+
+    public string FormSubmitMessage { get; set; } = "Data Not Submitted";
+
+    protected override void OnInitialized()
+    {
+        this.GetAllData();
+    }
+    public void GetAllData()
+    {
+        // adminList = AdminData.GetAllDataInd(State.username);
+        adminList = AdminData.GetAllData();
+        employees = EmployeeServices.GetAllDataDropDown();
+        userrole = EmployeeServices.GetAllDataDropDownUserRole();
+        
+    }
+    // public void SaveDataInd(string userName, string email, string mobile, string password)
+    // {
+
+    //     this.GetAllData();
+    // }
+
+    private void submit()
+    {
+        if (adminList.Any(a => a.Username.Equals(model.Username) && a.Password.Equals(model.Password)))
+        {
+            State.username = model.Username;
+            State.email = model.Email;
+            State.mobile = model.Mobile;
+            nunav.NavigateTo("/Index");
+        }
+        else
+        {
+            massege = "Your Email or Password is wrong";
+        }
+    }
+    public void HandleValidSubmit()
+    {
+
+        if (model.IsUpdate != true && model.Id == 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            AdminData.SaveDataDetails(model);
+            nunav.NavigateTo("/adminsetting");
+        }
+        if (model.IsUpdate == true && model.Id != 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            AdminData.SaveDataDetails(model);
+            nunav.NavigateTo("/adminsetting");
+        }
+        else
+        {
+
+        }
+    }
+    public void HandleInvalidSubmit() => FormSubmitMessage = "Invalid Data Submitted";
+
+    public void ClearAll()
+    {
+        model.Id = 0;
+        model.Username = string.Empty;
+        model.Email = string.Empty;
+        model.Mobile = string.Empty;
+        model.Password = string.Empty;
+        model.EmployeeID = 0;
+        model.Name = string.Empty;
+        // ValidationSummary.Equals=0;
+    }
+    protected async Task GetDataById(int Id)
+    {
+        model = await AdminData.GetDataById(Id);
+        model.IsUpdate = true;
+        this.GetAllData();
+    }
+    protected async Task DeleteData(int Id)
+    {
+        await AdminData.DeleteData(Id);
+        this.GetAllData();
+    }
+    protected async Task UpdateUserData()
+    {
+        await AdminData.SaveDataDetails(model);
+        // AdminData.SaveDataInd(model.Username, model.Email, model.Mobile, model.Password);
+        this.ClearAll();
+        this.GetAllData();
+        nunav.NavigateTo("/adminsetting");
+    }
+    protected async Task CreateUserData()
+    {
+        await AdminData.SaveDataDetails(model);
+        this.ClearAll();
+        this.GetAllData();
+        nunav.NavigateTo("/adminsetting");
+    }
+
+
+
+
+
+
+    //Test**************************************************************************
+    // private AdminModel1 model1 = new AdminModel1();
+
+  //   private IList<Employee1> employeeList = new List<Employee1>
+  // {
+  //           new Employee1
+  //           {
+  //               Id = 1, Name="USA",
+  //           },
+  //           new Employee1
+  //           {
+  //               Id = 2, Name="Germany",
+  //           },
+  //           new Employee1
+  //           {
+  //               Id = 3, Name="France",
+  //           },
+
+  //           new Employee1
+  //           {
+  //               Id = 4, Name="UK",
+  //           },
+
+  //           new Employee1
+  //           { 
+  //               Id = 5, Name="Russia",
+  //           }
+  //       };
+
+
+  //   private void SelectEmployees(ChangeEventArgs args)
+  //   {
+  //       // Note: Each time SelectCities is called MyLocation.CityCode should be set to null.
+  //       model1.EmployeeId = null;
+  //       int employeeId = int.Parse(args.Value.ToString());
+  //   }
+
+    // //AdminData
+    // public class AdminModel1
+    // {
+    //     public int Id { get; set; }
+    //     public string EmployeeId { get; set; }
+    // }
+
+    // //Employee
+    // public class Employee1
+    // {
+    //     public int Id { get; set; }
+    //     public string Name { get; set; }
+    //     // public IList<City> Cities { get; set; }
+    // }
+}

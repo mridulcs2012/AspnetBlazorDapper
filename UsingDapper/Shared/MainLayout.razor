@@ -1,0 +1,43 @@
+﻿@inherits LayoutComponentBase
+@using DataAccessLibrary.Models;
+@inject SessionState State
+@inject NavigationManager mynav
+<div style="background-color:#e5dff0; height:inherit;">
+<PageTitle>MDBA</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+            <div class="top-row px-4" style="background-color:#262f69;">
+            <div style="padding-left:0px;color:white;font-size:20px;font-weight:bolder">MY DAPPER BLAZOR APPLICATION</div>
+            @if (State == null)
+            {
+                
+            }
+            else
+            {
+                <div style="color:white;">
+                        <input type="submit" @onclick="Logout" style="padding-left:20px; width:80px; background-color:transparent; color:#84c7d1; border-color:transparent;" value="Logout" class="btn btn-warning">
+                </div>
+                <div style="color:yellow;font-weight:bold;padding-left:20px;">User:</div>
+                <div style="color:red;font-weight:bolder;padding-left:20px;">@State.empname</div>
+            }
+           
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+</div>
+@code{
+    private void Logout()
+    {
+        State = null;
+        mynav.NavigateTo("/");
+    }
+}

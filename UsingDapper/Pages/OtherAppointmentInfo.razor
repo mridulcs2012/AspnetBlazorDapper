@@ -1,0 +1,127 @@
+﻿@page "/OtherAppointmentInfo"
+@using System.Globalization;
+@using DataAccessLibrary.DataAccess;
+@using DataAccessLibrary.Models;
+@using DataAccessLibrary.SqlDataAccess;
+@inject NavigationManager nunav
+@inject SessionState State
+
+
+
+<div class="col-sm-12" style="padding:0px;">
+    <h4 style="background-color:#46316e; color:white; padding-bottom:10px">Appointments Share to Me:</h4>
+</div>
+
+
+<div class="container">
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-5" style="background-color:#735ed1; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white" style="font-weight:bolder;">Selected Date :</label>
+                </div>
+                <div class="form-group">
+                    <label class="text-red" style="width:390px;height:37px;font-weight:bolder;font-size:x-large; background-color:white;color:darkblue">@date</label>
+                </div>
+            </div>
+            <div class="col-sm-5" style="background-color:#735ed1; color:white; padding-bottom:10px">
+                <div class="form-group">
+                    <label class="text-white" style="width:200px;font-weight:bolder;">Please Select Date:</label>
+                    <Input type="date" class="form-control" Value="date" style="font-weight:bolder;" format-value="dd-MM-yyyy" @onchange=HandledateChange />
+                </div>
+            </div>
+            <div class="col-sm-2" style="background-color:#735ed1; color:white; padding-bottom:10px">
+            </div>
+        </div>
+    </EditForm>
+    <hr/>
+    <div class="row">
+        <div class="col-sm-12" style="padding:0px">
+
+            @if (appointmentList == null)
+            {
+                <h3>Please wait, Loading the data.</h3>
+            }
+            else
+            {
+                <table class='table'>
+                    <thead>
+                        <tr>
+                            <th>Officer Name</th>
+                            <th>Appointment Date</th>
+                            <th>Time</th>
+                            <th>Descriptions</th>
+                            <th>Instructions for me</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var appointment in appointmentList)
+                        {
+                            <tr>
+                                <td>@appointment.Name</td>
+                                <td>@appointment.wheredate.ToString("dd-MM-yyyy")</td>
+                                <td>@appointment.fromtime</td>
+                                <td>@appointment.appointwith</td>
+                                <td>@appointment.remarks</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div> 
+</div>
+
+
+
+@code {
+    string date = DateTime.Today.ToString("dd-MM-yyyy");
+    async Task HandledateChange(ChangeEventArgs args)
+    {
+        date = args.Value.ToString();
+        date = Convert.ToDateTime(date).ToString("dd-MM-yyyy");
+        await this.GetAllData();
+    }
+    public int EmpID;
+    Appointment model = new Appointment();
+    IEnumerable<Appointment> appointmentList;
+    [Inject]
+    public IAppointmentServices AppointmentServices { get; set; }
+    public string FormSubmitMessage { get; set; } = "Data Not Submitted";
+    protected override async Task OnInitializedAsync()
+    {
+        await this.GetAllData();
+    }
+    protected async Task GetAllData()
+    {
+        appointmentList = await AppointmentServices.GetAllDataOtherApmnt(date, State.empid);
+    }
+    public void HandleValidSubmit()
+    {
+        if (model.IsUpdate != true && model.Id == 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            nunav.NavigateTo("/appointmentinfo");
+        }
+        if (model.IsUpdate == true && model.Id != 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            nunav.NavigateTo("/appointmentinfo");
+        }
+        else
+        {
+
+        }
+    }
+    public void HandleInvalidSubmit() => FormSubmitMessage = "Invalid Data Submitted";
+    public void ClearAll()
+    {
+        model.pslct = 0;
+        model.fromtime = string.Empty;
+        model.appointwith = string.Empty;
+        model.remarks = string.Empty;
+    }
+}
+
+
+ 

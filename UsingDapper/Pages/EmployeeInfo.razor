@@ -1,0 +1,176 @@
+﻿@page "/employeeinfo"
+@using DataAccessLibrary.DataAccess;
+@using DataAccessLibrary.Models;
+@using DataAccessLibrary.SqlDataAccess;
+@* @inject IEmployeeServices _DbEmployee *@
+@inject NavigationManager nunav
+@inject SessionState State
+
+
+
+<link href="/validation.css" rel="stylesheet" />
+<div class="col-sm-12" style="padding:0px;">
+    <h4 style="background-color:#46316e; color:white; padding-bottom:10px">Employee Information</h4>
+</div>
+
+<div class="container">
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+        <div class="row">
+            <div class="col-sm-4" style="background-color:#807feb;; color:white; padding-bottom:10px">
+                <div class="form-group" style="display:none;">
+                    <label class="text-white">Id</label>
+                    <InputNumber class="form-control" @bind-Value="model.Id" disabled />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">Name</label>
+                    <ValidationMessage For="@(() => model.Name)" />
+                    <InputText class="form-control" @bind-Value="model.Name" />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">Email Address</label>
+                    <ValidationMessage For="@(() => model.EmailAddress)" />
+                    <InputText class="form-control" @bind-Value="model.EmailAddress" />
+                </div>
+            </div>
+            <div class="col-sm-4" style="background-color:#807feb;; color:white; padding-bottom:10px">
+
+                <div class="form-group">
+                    <label class="text-white">Phone Numer</label>
+                    <ValidationMessage For="@(() => model.PhoneNumer)" />
+                    <InputText class="form-control" @bind-Value="model.PhoneNumer" />
+                </div>
+                <div class="form-group">
+                    <label class="text-white">CreditCard Numer</label>
+                    <ValidationMessage For="@(() => model.CreditCardNumer)" />
+                    <InputText class="form-control" @bind-Value="model.CreditCardNumer" />
+                </div>
+            </div>
+            <div class="col-sm-4" style="background-color:#21395e; border-color:red; border-width:50px; color:white; padding-bottom:10px">
+                <div class="form-group" style="padding-top:5px">
+                    @if (model.IsUpdate)
+                    {
+                        <input type="button" class="btn btn-primary" @onclick="@UpdateEmployee" value="Update" />
+                    }
+                    else
+                    {
+                        <input type="button" class="btn btn-primary" @onclick="@CreateEmployee" value="Save" />
+                    }
+                </div>
+                <div class="form-group">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12" style="padding:0px">
+                @if (employeeList == null)
+                {
+                    <h3>Please wait, Loading the data.</h3>
+                }
+                else
+                {
+               @*  class="table table-striped" *@
+                @* class='table' *@
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Credit Card</th>
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var employee in employeeList)
+                            {
+                                <tr>
+                                    <td>@employee.Id</td>
+                                    <td>@employee.Name</td>
+                                    <td>@employee.EmailAddress</td>
+                                    <td>@employee.PhoneNumer</td>
+                                    <td>@employee.CreditCardNumer</td>
+                                    <td>
+                                        <input type="button" value="Edit" @onclick="() => GetDataById(employee.Id)" class="btn btn-primary" />
+                                        <input type="button" value="Delete" @onclick="() => DeleteData(employee.Id)" class="btn btn-danger" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+
+@code {
+    Employee model = new Employee();
+    string? massege;
+    IEnumerable<Employee> employeeList;
+    [Inject]
+    public IEmployeeServices EmployeeServices { get; set; }
+    public string FormSubmitMessage { get; set; } = "Data Not Submitted";
+    protected override async Task OnInitializedAsync()
+    {
+        await this.GetAllData();
+    }
+    protected async Task GetAllData()
+    {
+        employeeList = await EmployeeServices.GetAllData();
+    }
+    public void HandleValidSubmit()
+    {
+
+        if (model.IsUpdate != true && model.Id==0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            EmployeeServices.SaveDataDetails(model);
+            nunav.NavigateTo("/employeeinfo");
+        }
+        if (model.IsUpdate == true && model.Id != 0)
+        {
+            FormSubmitMessage = "Form Data Submitted";
+            EmployeeServices.SaveDataDetails(model);
+            nunav.NavigateTo("/employeeinfo");
+        }
+        else
+        {
+         
+        }
+    }
+    public void HandleInvalidSubmit() => FormSubmitMessage = "Invalid Data Submitted";
+    protected async Task UpdateEmployee()
+    {
+        await EmployeeServices.SaveDataDetails(model);
+        await this.GetAllData();
+        this.ClearAll();
+    }
+    protected async Task CreateEmployee()
+    {
+        await EmployeeServices.SaveDataDetails(model);
+        await this.GetAllData();
+        this.ClearAll();
+    }
+    public void ClearAll()
+    {
+        model.Name = string.Empty;
+        model.EmailAddress = string.Empty;
+        model.PhoneNumer = string.Empty;
+        model.CreditCardNumer = string.Empty;
+    }
+    protected async Task GetDataById(int Id)
+    {
+        model = await EmployeeServices.GetDataById(Id);
+        model.IsUpdate = true;
+        await this.GetAllData();
+    }
+    protected async Task DeleteData(int Id)
+    {
+        await EmployeeServices.DeleteData(Id);
+        await this.GetAllData();
+    }
+} 

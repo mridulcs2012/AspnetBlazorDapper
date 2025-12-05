@@ -1,0 +1,147 @@
+﻿@page "/reports"
+@* @layout LoginLayout *@
+@inject NavigationManager mynav
+@using DataAccessLibrary.DataAccess;
+@using DataAccessLibrary.Models;
+@using DataAccessLibrary.SqlDataAccess;
+@inject SessionState State
+@using DataAccessLibrary.DataReportModels;
+@using DataAccessLibrary.ReportDataSet;
+
+@using BlazorDapper.Controllers;
+
+
+<div class="col-sm-12" style="padding:0px;">
+    <h4 style="background-color:#46316e; color:white; padding-bottom:10px">Report</h4>
+</div>
+
+<div class="row" style="padding-left:50px;padding-top:10px;padding-right:0px;padding-bottom:0px;">
+    <div class="col-sm-1">
+        <label class="text-red" style="width:200px;height:37px;font-weight:bolder;font-size:x-large; background-color:transparent;color:darkblue">From :</label>
+    </div>
+        <div class="col-sm-3" style="color:white;">
+                <label class="text-red" style="width:250px;height:37px;font-weight:bolder;font-size:x-large; background-color:white;color:darkblue">@date1</label>
+        </div>
+        <div class="col-sm-1" style="color:white;">
+                <Input type="date" class="form-control" Value="date" style="font-weight:bolder;width:45px" format-value="dd-MM-yyyy" @onchange=HandledateChange1 />
+        </div>
+    <div class="col-sm-1">
+        <label class="text-red" style="width:200px;height:37px;font-weight:bolder;font-size:x-large; background-color:transparent;color:darkblue;">To  :</label>
+    </div>
+    <div class="col-sm-3" style="color:white;">
+        <label class="text-red" style="width:250px;height:37px;font-weight:bolder;font-size:x-large; background-color:white;color:darkblue">@date2</label>
+    </div>
+    <div class="col-sm-1" style="color:white;">
+        <Input type="date" class="form-control" Value="date" style="font-weight:bolder;width:45px" format-value="dd-MM-yyyy" @onchange=HandledateChange2 />
+    </div>
+
+
+</div>
+<div class="row" style="padding-left:50px;padding-top:10px;padding-right:0px;padding-bottom:0px;">
+    <div class="col-sm-1">
+        <label class="text-red" style="width:200px;height:37px;font-weight:bolder;font-size:x-large; background-color:transparent;color:darkblue"></label>
+    </div>
+    <div class="col-sm-3" style="padding:0px">
+        <a id="btnGenerate1" class="btn btn-primary" style="width:200px;" href="/api/Employee/AppointmentReport?empID=@State.empid&dtmDate1=@date1&dtmDate2=@date2&empName=@State.empname&dtRange=@dtRange" target="_blank">Appointment List</a>
+    </div>
+    <div class="col-sm-3" style="padding:0px">
+        <a id="btnGenerate" class="btn btn-primary" style="width:200px;" href="/api/Employee/AppShareReport?empID=@State.empid&dtmDate1=@date1&dtmDate2=@date2&empName=@State.empname&dtRange=@dtRange" target="_blank">Share to List</a>
+    </div>
+    <div class="col-sm-3" style="padding:0px">
+        <a id="btnGenerate2" class="btn btn-primary" style="width:200px;" href="/api/Employee/AppShareToMe?empID=@State.empid&dtmDate1=@date1&dtmDate2=@date2&empName=@State.empname&dtRange=@dtRange" target="_blank">Share to Me</a>
+    </div>
+    <div class="col-sm-3" style="padding:0px">
+        <a id="btnGenerate12" class="btn btn-primary" style="width:200px;" href="/api/Employee/AppointmentReport12?empID=@State.empid&dtmDate1=@date1&dtmDate2=@date2&empName=@State.empname&dtRange=@dtRange" target="_blank">Appointment12 List</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3" style="padding:0px">
+        <a id="btnGenerate4" class="btn btn-primary" style="width:200px;" href="/api/Employee/EmployeeReport?" target="_blank">Employee List</a>
+    </div>
+    <div class="col-sm-3" style="padding:0px">
+        <a id="btnGenerate1" class="btn btn-primary" style="width:200px;" href="/api/Employee/AppointmentReport2?empID=@State.empid&dtmDate1=@date1&dtmDate2=@date2&empName=@State.empname&dtRange=@dtRange" target="_blank">Appointment List</a>
+    </div>
+</div>
+@* <div class="row" style="padding-left:50px;padding-top:10px;padding-right:0px;padding-bottom:0px;">
+    <div class="col-sm-4" style="background-color:#735ed1; color:white;">
+        <label class="text-red" style="width:200px;height:37px;font-weight:bolder;font-size:x-large; background-color:white;color:red">@date2</label>
+    </div>
+    <div class="col-sm-4" style="background-color:#735ed1; color:white;">
+        <Input type="date" class="form-control" Value="date" style="font-weight:bolder;width:45px" format-value="dd-MM-yyyy" @onchange=HandledateChange3 />
+    </div>
+
+</div> *@
+@* <div class="row" style="padding-left:50px;padding-top:0px;padding-right:50px;padding-bottom:10px;">
+        <form method="post" asp-controller="Employee" asp-action="AppointmentReport">
+        <table border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <div class="container">
+                        <label style="color: red;"> Employee ID : </label>
+                        <input text="text" placeholder="Enter Employee ID" name="@State.empid" required>
+                        <button type="submit"><strong>Submit</strong></button>
+                        <div>
+                            <h3 style="color:red;">
+                                @if (State.empid != 0)
+                                    @State.empid
+                                </h3>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+        </form>
+</div>
+  
+ *@
+
+
+
+    @code {
+    string date1 = DateTime.Today.ToString("dd-MM-yyyy");
+    string date2 = DateTime.Today.ToString("dd-MM-yyyy");
+    string date3 = DateTime.Today.ToString("dd-MM-yyyy");
+    string dtRange = "";
+    async Task HandledateChange1(ChangeEventArgs args)
+    {
+        date1 = args.Value.ToString();
+        date1 = Convert.ToDateTime(date1).ToString("dd-MM-yyyy");
+        dtRange = "(From " + date1 + " to " + date2 + ")";
+
+    }
+    async Task HandledateChange2(ChangeEventArgs args)
+    {
+        date2 = args.Value.ToString();
+        date2 = Convert.ToDateTime(date2).ToString("dd-MM-yyyy");
+        dtRange = "(From " + date1 + " to " + date2 + ")";
+    }
+    async Task HandledateChange3(ChangeEventArgs args)
+    {
+        date3 = args.Value.ToString();
+        date3 = Convert.ToDateTime(date3).ToString("dd-MM-yyyy");
+        dtRange = "(From " + date1 + " to " + date2 + ")";
+    }
+    // IEnumerable<Appointment> appointmentList;
+    // [Inject]
+    // public IAppointmentServices AppointmentServices { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // await this.    
+        
+    }
+
+    protected async Task GetAllData()
+    {
+        // usrDate = DateTime.Today.ToString("dd-MM-yyyy");
+        // appointmentList = await AppointmentServices.GetAllDataUsr(date1, State.empid);
+    }
+    private void ReportV1()
+    {
+        mynav.NavigateTo("/reports");
+       
+
+    }
+}
+ 

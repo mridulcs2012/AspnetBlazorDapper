@@ -1,0 +1,107 @@
+﻿@using DataAccessLibrary.Models;
+@inject SessionState State
+@inject NavigationManager mynav
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" style="font-weight:bolder;font-size:20px" href="Index">
+            @* <img src="" alt="Girl in a jacket" style="width:500px;height:600px;"> *@
+            <img src="/logo11.png" style="width:60px;height:50px;" />
+            MBDA
+            </a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Index" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> ড্যাশবোর্ড
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="appointmentinfo">
+                <span class="oi oi-plus" aria-hidden="true"></span> অ্যাপোয়েন্টমেন্ট
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="OtherAppointmentInfo">
+                <span class="oi oi-plus" aria-hidden="true"></span> অন্যদের অ্যাপোয়েন্ট.
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="userprofile">
+                <span class="oi oi-media-pause" aria-hidden="true"></span> ইউজার প্রোফাইল
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="reports">
+                <span class="oi oi-media-pause" aria-hidden="true"></span> রিপোর্ট
+            </NavLink>
+        </div>
+        
+
+        @if (State.userroleid == 1)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="employeeinfo">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span>কর্মকর্তা-কর্মচারী
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="adminsetting">
+                    <span class="oi oi-wrench" aria-hidden="true"></span>সেটিংস
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="guestuser">
+                    <span class="oi oi-wrench" aria-hidden="true"></span>গেস্ট ইউজার
+                </NavLink>
+            </div>
+
+        }
+        else
+        {
+            
+        }
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="">
+@*                 <input type="submit" @onclick="Logout" style="padding-left:20px; width:80px; background-color:transparent; color:#84c7d1; border-color:transparent;" value="Logout" class="btn btn-warning"> *@
+                <span class="oi oi-wrench" aria-hidden="true"></span>লগ আউট
+            </NavLink>
+        </div>
+
+
+
+@*         <div class="nav-item px-3">
+            <NavLink class="nav-link" href="fetchdata">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="employeeinfo">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Employee
+            </NavLink>
+        </div> *@
+    </nav>
+</div>
+
+@code {
+    public string x;
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+    private void Logout()
+    {
+        State = null;
+        mynav.NavigateTo("/");
+    }
+}

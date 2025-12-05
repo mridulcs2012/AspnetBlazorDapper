@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DataSetReport" targetNamespace="http://tempuri.org/DataSetReport.xsd" xmlns:mstns="http://tempuri.org/DataSetReport.xsd" xmlns="http://tempuri.org/DataSetReport.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DataSetReport" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:Generator_UserDSName="DataSetReport" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DataSetReport">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="DataSetReport" msprop:Generator_RowClassName="DataSetReportRow" msprop:Generator_RowEvHandlerName="DataSetReportRowChangeEventHandler" msprop:Generator_RowDeletedName="DataSetReportRowDeleted" msprop:Generator_RowDeletingName="DataSetReportRowDeleting" msprop:Generator_RowEvArgName="DataSetReportRowChangeEvent" msprop:Generator_TablePropName="_DataSetReport" msprop:Generator_RowChangedName="DataSetReportRowChanged" msprop:Generator_UserTableName="DataSetReport" msprop:Generator_RowChangingName="DataSetReportRowChanging" msprop:Generator_TableClassName="DataSetReportDataTable" msprop:Generator_TableVarName="tableDataSetReport">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Id" msprop:Generator_UserColumnName="Id" msprop:Generator_ColumnPropNameInTable="IdColumn" msprop:Generator_ColumnPropNameInRow="Id" msprop:Generator_ColumnVarNameInTable="columnId" type="xs:int" minOccurs="0" />
+              <xs:element name="wheredate" msprop:Generator_UserColumnName="wheredate" msprop:Generator_ColumnPropNameInTable="wheredateColumn" msprop:Generator_ColumnPropNameInRow="wheredate" msprop:Generator_ColumnVarNameInTable="columnwheredate" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="fromtime" msprop:Generator_UserColumnName="fromtime" msprop:Generator_ColumnPropNameInTable="fromtimeColumn" msprop:Generator_ColumnPropNameInRow="fromtime" msprop:Generator_ColumnVarNameInTable="columnfromtime" type="xs:string" minOccurs="0" />
+              <xs:element name="appointwith" msprop:Generator_UserColumnName="appointwith" msprop:Generator_ColumnPropNameInTable="appointwithColumn" msprop:Generator_ColumnPropNameInRow="appointwith" msprop:Generator_ColumnVarNameInTable="columnappointwith" type="xs:string" minOccurs="0" />
+              <xs:element name="Name" msprop:Generator_UserColumnName="Name" msprop:Generator_ColumnPropNameInTable="NameColumn" msprop:Generator_ColumnPropNameInRow="Name" msprop:Generator_ColumnVarNameInTable="columnName" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="DataSetReport1" msprop:Generator_RowEvHandlerName="DataSetReport1RowChangeEventHandler" msprop:Generator_RowDeletedName="DataSetReport1RowDeleted" msprop:Generator_RowDeletingName="DataSetReport1RowDeleting" msprop:Generator_RowEvArgName="DataSetReport1RowChangeEvent" msprop:Generator_TablePropName="DataSetReport1" msprop:Generator_RowChangedName="DataSetReport1RowChanged" msprop:Generator_RowChangingName="DataSetReport1RowChanging" msprop:Generator_TableClassName="DataSetReport1DataTable" msprop:Generator_RowClassName="DataSetReport1Row" msprop:Generator_TableVarName="tableDataSetReport1" msprop:Generator_UserTableName="DataSetReport1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Id" msprop:Generator_ColumnPropNameInRow="Id" msprop:Generator_ColumnPropNameInTable="IdColumn" msprop:Generator_ColumnVarNameInTable="columnId" msprop:Generator_UserColumnName="Id" type="xs:int" minOccurs="0" />
+              <xs:element name="wheredate" msprop:Generator_ColumnPropNameInRow="wheredate" msprop:Generator_ColumnPropNameInTable="wheredateColumn" msprop:Generator_ColumnVarNameInTable="columnwheredate" msprop:Generator_UserColumnName="wheredate" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="fromtime" msprop:Generator_ColumnPropNameInRow="fromtime" msprop:Generator_ColumnPropNameInTable="fromtimeColumn" msprop:Generator_ColumnVarNameInTable="columnfromtime" msprop:Generator_UserColumnName="fromtime" type="xs:string" minOccurs="0" />
+              <xs:element name="appointwith" msprop:Generator_ColumnPropNameInRow="appointwith" msprop:Generator_ColumnPropNameInTable="appointwithColumn" msprop:Generator_ColumnVarNameInTable="columnappointwith" msprop:Generator_UserColumnName="appointwith" type="xs:string" minOccurs="0" />
+              <xs:element name="Name" msprop:Generator_ColumnPropNameInRow="Name" msprop:Generator_ColumnPropNameInTable="NameColumn" msprop:Generator_ColumnVarNameInTable="columnName" msprop:Generator_UserColumnName="Name" type="xs:string" minOccurs="0" />
+              <xs:element name="sharename" msprop:Generator_ColumnPropNameInRow="sharename" msprop:Generator_ColumnPropNameInTable="sharenameColumn" msprop:Generator_ColumnVarNameInTable="columnsharename" msprop:Generator_UserColumnName="sharename" type="xs:string" minOccurs="0" />
+              <xs:element name="Insrtuctions" msprop:Generator_ColumnPropNameInRow="Insrtuctions" msprop:Generator_ColumnPropNameInTable="InsrtuctionsColumn" msprop:Generator_ColumnVarNameInTable="columnInsrtuctions" msprop:Generator_UserColumnName="Insrtuctions" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
